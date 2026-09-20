@@ -290,6 +290,44 @@
     box-shadow:0 6px 18px rgba(0,0,0,0.4);
     transform:rotate(3deg);
   }
+
+  .codex-secret-btn{
+    position:absolute;
+    bottom:8px;
+    left:8px;
+    width:60px;
+    height:60px;
+    background:transparent;
+    border:none;
+    cursor:default;
+    padding:0;
+  }
+  .lock-overlay{
+    position:fixed; inset:0; background:rgba(10,7,20,0.8);
+    display:flex; align-items:center; justify-content:center;
+    z-index:60; padding:20px;
+  }
+  .lock-panel{
+    background:var(--ink-2); border:1px solid var(--gold); border-radius:14px;
+    padding:24px; text-align:center; max-width:280px; width:100%;
+  }
+  .lock-panel h3{
+    font-family:'Cormorant Garamond', serif; font-size:20px; color:var(--gold-bright); margin:0 0 4px;
+  }
+  .lock-sub{ font-size:12px; color:var(--text-dim); margin-bottom:16px; }
+  .lock-digits{ display:flex; gap:8px; justify-content:center; margin-bottom:14px; }
+  .lock-digit{
+    width:42px; height:52px; text-align:center; font-size:22px;
+    background:var(--panel); border:1px solid var(--line); border-radius:8px;
+    color:var(--text); font-family:'Cormorant Garamond', serif;
+  }
+  .lock-digit:focus{ outline:none; border-color:var(--gold); }
+  .lock-error{ font-size:12px; color:var(--red); min-height:16px; margin-bottom:8px; }
+  .lock-buttons{ display:flex; gap:8px; justify-content:center; }
+  .lock-cancel{
+    background:transparent; border:1px solid var(--line); color:var(--text-dim);
+    font-size:13px; padding:8px 14px; border-radius:8px; cursor:pointer;
+  }
 </style>
 </head>
 <body>
@@ -302,11 +340,13 @@
 
   const BASE = ["Fire","Water","Earth","Air"];
 
-  const CATEGORY = {"Fire":"Element","Water":"Element","Earth":"Element","Air":"Element","Steam":"Weather","Rain":"Weather","Cloud":"Weather","Storm":"Weather","Lightning":"Weather","Wind":"Weather","Sandstorm":"Weather","Fog":"Weather","Smoke":"Weather","Rainbow":"Weather","Lava":"Nature","Geyser":"Nature","Volcano":"Nature","Swamp":"Nature","Island":"Nature","Flood":"Nature","Wave":"Nature","Waterfall":"Nature","Mountain":"Nature","Beach":"Nature","River":"Nature","Forest":"Nature","Canyon":"Nature","Cave":"Nature","Reef":"Nature","Ocean":"Nature","Jungle":"Nature","Valley":"Nature","Mud":"Material","Dust":"Material","Ash":"Material","Obsidian":"Material","Brick":"Material","Clay":"Material","Glass":"Material","Sand":"Material","Metal":"Material","Mineral":"Material","Crystal":"Material","Ceramic":"Material","Charcoal":"Material","Soap":"Material","Paper":"Material","Steel":"Material","Gold":"Material","Diamond":"Material","Coal":"Material","Ink":"Material","Salt":"Material","Rust":"Material","Bronze":"Material","Life":"Living","Plant":"Living","Tree":"Living","Fish":"Living","Bird":"Living","Frog":"Living","Human":"Living","Flower":"Living","Grass":"Living","Seed":"Living","Egg":"Living","Snake":"Living","Coral":"Living","Moss":"Living","Mushroom":"Living","Butterfly":"Living","Bee":"Living","Wolf":"Living","Pottery":"Object","Mirror":"Object","Wall":"Object","House":"Object","Sword":"Object","Wheel":"Object","Boat":"Object","Clock":"Object","Book":"Object","Lamp":"Object","Candle":"Object","Knife":"Object","Axe":"Object","Bridge":"Object","Tower":"Object","Statue":"Object","Coin":"Object","Map":"Object","Bell":"Object","Chariot":"Object","Anchor":"Object","Sky":"Cosmic","Energy":"Cosmic","Electricity":"Cosmic","Time":"Cosmic","Sound":"Cosmic","Music":"Cosmic","Star":"Cosmic","Sun":"Cosmic","Moon":"Cosmic","Ghost":"Cosmic","Compass":"Cosmic"};
+  const CATEGORY = {"Fire":"Element","Water":"Element","Earth":"Element","Air":"Element","Steam":"Weather","Rain":"Weather","Cloud":"Weather","Storm":"Weather","Lightning":"Weather","Wind":"Weather","Sandstorm":"Weather","Fog":"Weather","Smoke":"Weather","Rainbow":"Weather","Blizzard":"Weather","Hail":"Weather","Lava":"Nature","Geyser":"Nature","Volcano":"Nature","Swamp":"Nature","Island":"Nature","Flood":"Nature","Wave":"Nature","Waterfall":"Nature","Mountain":"Nature","Desert":"Nature","Beach":"Nature","River":"Nature","Forest":"Nature","Canyon":"Nature","Cave":"Nature","Reef":"Nature","Ocean":"Nature","Jungle":"Nature","Valley":"Nature","Mud":"Material","Dust":"Material","Ash":"Material","Obsidian":"Material","Brick":"Material","Clay":"Material","Glass":"Material","Sand":"Material","Metal":"Material","Mineral":"Material","Crystal":"Material","Ceramic":"Material","Charcoal":"Material","Soap":"Material","Paper":"Material","Cement":"Material","Steel":"Material","Gold":"Material","Diamond":"Material","Coal":"Material","Ink":"Material","Salt":"Material","Rust":"Material","Bronze":"Material","Life":"Living","Plant":"Living","Tree":"Living","Fish":"Living","Bird":"Living","Frog":"Living","Human":"Living","Flower":"Living","Grass":"Living","Seed":"Living","Egg":"Living","Snake":"Living","Coral":"Living","Moss":"Living","Mushroom":"Living","Butterfly":"Living","Bee":"Living","Wolf":"Living","Pottery":"Object","Mirror":"Object","Wall":"Object","House":"Object","Sword":"Object","Wheel":"Object","Boat":"Object","Key":"Object","Lock":"Object","Clock":"Object","Book":"Object","Lamp":"Object","Candle":"Object","Knife":"Object","Axe":"Object","Bridge":"Object","Tower":"Object","Statue":"Object","Coin":"Object","Map":"Object","Bell":"Object","Chariot":"Object","Anchor":"Object","Sky":"Cosmic","Energy":"Cosmic","Electricity":"Cosmic","Time":"Cosmic","Sound":"Cosmic","Music":"Cosmic","Star":"Cosmic","Sun":"Cosmic","Moon":"Cosmic","Compass":"Cosmic","Cat":"Living","Dog":"Living","Horse":"Living","Cow":"Living","Sheep":"Living","Pig":"Living","Chicken":"Living","Owl":"Living","Bear":"Living","Lion":"Living","Tiger":"Living","Dolphin":"Living","Whale":"Living","Shark":"Living","Ant":"Living","Spider":"Living","Rabbit":"Living","Deer":"Living","Fox":"Living","Turtle":"Living","Camel":"Living","Elephant":"Living","Bat":"Living","Duck":"Living","Goat":"Living","Bread":"Food","Cheese":"Food","Wine":"Food","Soup":"Food","Sugar":"Food","Cake":"Food","Milk":"Food","Honey":"Food","Wheat":"Food","Apple":"Food","Beer":"Food","Tea":"Food","Cloth":"Material2","Rope":"Object","Basket":"Object","Needle":"Object","Thread":"Material2","Hammer":"Object","Nail":"Object","Saw":"Object","Pencil":"Object","Letter":"Object","Telescope":"Object","Camera":"Object","Radio":"Object","Computer":"Object","Robot":"Object","Battery":"Object","Engine":"Object","Train":"Object","Car":"Object","Airplane":"Object","Balloon":"Object","Umbrella":"Object","Kite":"Object","Sail":"Object","Net":"Object","Ladder":"Object","Scissors":"Object","Castle":"Structure","Village":"Structure","City":"Structure","Farm":"Structure","Windmill":"Structure","Well":"Structure","Fence":"Structure","Barn":"Structure","Church":"Structure","School":"Structure","Library":"Structure","Palace":"Structure","Lighthouse":"Structure","Pyramid":"Structure","Temple":"Structure","Dream":"Concept","Shadow":"Concept","King":"Society","Queen":"Society","Knight":"Society","Soldier":"Society","Army":"Society","War":"Society","Peace":"Society","Love":"Society","Money":"Society","Market":"Society","Oxygen":"Chemistry","Hydrogen":"Chemistry","Nitrogen":"Chemistry","Carbon":"Chemistry","Sulfur":"Chemistry","Helium":"Chemistry","Ammonia":"Chemistry","Methane":"Chemistry","Carbon Dioxide":"Chemistry","Acid":"Chemistry","Alcohol":"Chemistry","Vinegar":"Chemistry","Gunpowder":"Chemistry","Explosive":"Chemistry","Plastic":"Chemistry","Rubber":"Chemistry","Petroleum":"Chemistry","Gasoline":"Chemistry","Alloy":"Chemistry","Poison":"Chemistry","Pressure":"Chemistry","Vapor":"Chemistry","Smog":"Chemistry","Bacteria":"Living","Fossil":"Nature","Dinosaur":"Living","Continent":"Nature","Space":"Space","Rocket":"Space","Astronaut":"Space","Satellite":"Space","Planet":"Space","Comet":"Space","Galaxy":"Space","Meteor":"Space","Asteroid":"Space","Black Hole":"Space","Supernova":"Space","Neutron Star":"Space","White Dwarf":"Space","Red Giant":"Space","Nebula":"Space","Pulsar":"Space","Quasar":"Space","Wormhole":"Space","Dark Matter":"Space","Universe":"Space"};
 
-  const ICONS = {"Fire":"🔥","Water":"💧","Earth":"🌍","Air":"💨","Steam":"♨️","Rain":"🌧️","Cloud":"☁️","Storm":"🌩️","Lightning":"⚡","Wind":"🌬️","Sandstorm":"🏜️","Fog":"🌫️","Smoke":"💨","Rainbow":"🌈","Lava":"🌋","Geyser":"⛲","Volcano":"🗻","Swamp":"🐊","Island":"🏝️","Flood":"🌊","Wave":"🌊","Waterfall":"💦","Mountain":"⛰️","Beach":"🏖️","River":"🏞️","Forest":"🌲","Canyon":"🏜️","Cave":"🕳️","Reef":"🪸","Ocean":"🌊","Jungle":"🌴","Valley":"🏔️","Mud":"🟤","Dust":"🌪️","Ash":"⚪","Obsidian":"⚫","Brick":"🧱","Clay":"🏺","Glass":"🔷","Sand":"🏖️","Metal":"⚙️","Mineral":"💠","Crystal":"💎","Ceramic":"🏺","Charcoal":"⬛","Soap":"🧼","Paper":"📄","Steel":"🔩","Gold":"🪙","Diamond":"💎","Coal":"⚫","Ink":"🖋️","Salt":"🧂","Rust":"🟠","Bronze":"🥉","Life":"🌱","Plant":"🌿","Tree":"🌳","Fish":"🐟","Bird":"🐦","Frog":"🐸","Human":"🧑","Flower":"🌸","Grass":"🌾","Seed":"🌰","Egg":"🥚","Snake":"🐍","Coral":"🪸","Moss":"🌱","Mushroom":"🍄","Butterfly":"🦋","Bee":"🐝","Wolf":"🐺","Pottery":"🏺","Mirror":"🪞","Wall":"🧱","House":"🏠","Sword":"⚔️","Wheel":"🛞","Boat":"⛵","Clock":"🕰️","Book":"📖","Lamp":"🪔","Candle":"🕯️","Knife":"🔪","Axe":"🪓","Bridge":"🌉","Tower":"🗼","Statue":"🗿","Coin":"🪙","Map":"🗺️","Bell":"🔔","Chariot":"🛺","Anchor":"⚓","Sky":"🌌","Energy":"⚡","Electricity":"🔌","Time":"⏳","Sound":"🔊","Music":"🎵","Star":"⭐","Sun":"☀️","Moon":"🌙","Ghost":"👻","Compass":"🧭"};
+  const ICONS = {"Fire":"🔥","Water":"💧","Earth":"🌍","Air":"💨","Steam":"♨️","Rain":"🌧️","Cloud":"☁️","Storm":"🌩️","Lightning":"⚡","Wind":"🌬️","Sandstorm":"🏜️","Fog":"🌫️","Smoke":"💨","Rainbow":"🌈","Blizzard":"🌨️","Hail":"🧊","Lava":"🌋","Geyser":"⛲","Volcano":"🗻","Swamp":"🐊","Island":"🏝️","Flood":"🌊","Wave":"🌊","Waterfall":"💦","Mountain":"⛰️","Desert":"🏜️","Beach":"🏖️","River":"🏞️","Forest":"🌲","Canyon":"🏜️","Cave":"🕳️","Reef":"🪸","Ocean":"🌊","Jungle":"🌴","Valley":"🏔️","Mud":"🟤","Dust":"🌪️","Ash":"⚪","Obsidian":"⚫","Brick":"🧱","Clay":"🏺","Glass":"🔷","Sand":"🏖️","Metal":"⚙️","Mineral":"💠","Crystal":"💎","Ceramic":"🏺","Charcoal":"⬛","Soap":"🧼","Paper":"📄","Cement":"🧱","Steel":"🔩","Gold":"🪙","Diamond":"💎","Coal":"⚫","Ink":"🖋️","Salt":"🧂","Rust":"🟠","Bronze":"🥉","Life":"🌱","Plant":"🌿","Tree":"🌳","Fish":"🐟","Bird":"🐦","Frog":"🐸","Human":"🧑","Flower":"🌸","Grass":"🌾","Seed":"🌰","Egg":"🥚","Snake":"🐍","Coral":"🪸","Moss":"🌱","Mushroom":"🍄","Butterfly":"🦋","Bee":"🐝","Wolf":"🐺","Pottery":"🏺","Mirror":"🪞","Wall":"🧱","House":"🏠","Sword":"⚔️","Wheel":"🛞","Boat":"⛵","Key":"🔑","Lock":"🔒","Clock":"🕰️","Book":"📖","Lamp":"🪔","Candle":"🕯️","Knife":"🔪","Axe":"🪓","Bridge":"🌉","Tower":"🗼","Statue":"🗿","Coin":"🪙","Map":"🗺️","Bell":"🔔","Chariot":"🛺","Anchor":"⚓","Sky":"🌌","Energy":"⚡","Electricity":"🔌","Time":"⏳","Sound":"🔊","Music":"🎵","Star":"⭐","Sun":"☀️","Moon":"🌙","Compass":"🧭","Cat":"🐱","Dog":"🐶","Horse":"🐴","Cow":"🐄","Sheep":"🐑","Pig":"🐷","Chicken":"🐔","Owl":"🦉","Bear":"🐻","Lion":"🦁","Tiger":"🐯","Dolphin":"🐬","Whale":"🐳","Shark":"🦈","Ant":"🐜","Spider":"🕷️","Rabbit":"🐰","Deer":"🦌","Fox":"🦊","Turtle":"🐢","Camel":"🐫","Elephant":"🐘","Bat":"🦇","Duck":"🦆","Goat":"🐐","Bread":"🍞","Cheese":"🧀","Wine":"🍷","Soup":"🍲","Sugar":"🍬","Cake":"🍰","Milk":"🥛","Honey":"🍯","Wheat":"🌾","Apple":"🍎","Beer":"🍺","Tea":"🍵","Cloth":"🧵","Rope":"🪢","Basket":"🧺","Needle":"🪡","Thread":"🧵","Hammer":"🔨","Nail":"🔩","Saw":"🪚","Pencil":"✏️","Letter":"✉️","Telescope":"🔭","Camera":"📷","Radio":"📻","Computer":"💻","Robot":"🤖","Battery":"🔋","Engine":"🛠️","Train":"🚂","Car":"🚗","Airplane":"✈️","Balloon":"🎈","Umbrella":"☂️","Kite":"🪁","Sail":"⛵","Net":"🥅","Ladder":"🪜","Scissors":"✂️","Castle":"🏰","Village":"🏘️","City":"🏙️","Farm":"🚜","Windmill":"🎡","Well":"⛲","Fence":"🚧","Barn":"🏚️","Church":"⛪","School":"🏫","Library":"📚","Palace":"🏯","Lighthouse":"🚨","Pyramid":"🔺","Temple":"🛕","Dream":"💭","Shadow":"🌑","King":"🤴","Queen":"👸","Knight":"🛡️","Soldier":"💂","Army":"⚔️","War":"💥","Peace":"🕊️","Love":"❤️","Money":"💰","Market":"🏪","Oxygen":"🅾️","Hydrogen":"🧪","Nitrogen":"🧪","Carbon":"⚫","Sulfur":"🟡","Helium":"🎈","Ammonia":"🧪","Methane":"🧪","Carbon Dioxide":"🧪","Acid":"🧪","Alcohol":"🍸","Vinegar":"🍾","Gunpowder":"💥","Explosive":"🧨","Plastic":"🧴","Rubber":"🛞","Petroleum":"🛢️","Gasoline":"⛽","Alloy":"🔗","Poison":"☠️","Pressure":"🌡️","Vapor":"💨","Smog":"🌫️","Bacteria":"🦠","Fossil":"🦴","Dinosaur":"🦕","Continent":"🗺️","Space":"🌌","Rocket":"🚀","Astronaut":"👨‍🚀","Satellite":"🛰️","Planet":"🪐","Comet":"☄️","Galaxy":"🌌","Meteor":"🌠","Asteroid":"🪨","Black Hole":"🕳️","Supernova":"💥","Neutron Star":"💫","White Dwarf":"⚪","Red Giant":"🔴","Nebula":"🎆","Pulsar":"📡","Quasar":"✨","Wormhole":"🌀","Dark Matter":"🖤","Universe":"🌌"};
 
-  const RECIPE_LIST = [["Fire","Water","Steam"],["Fire","Earth","Lava"],["Fire","Air","Energy"],["Water","Earth","Mud"],["Water","Air","Rain"],["Earth","Air","Dust"],["Steam","Air","Cloud"],["Steam","Earth","Geyser"],["Lava","Water","Obsidian"],["Lava","Air","Ash"],["Lava","Earth","Volcano"],["Energy","Water","Storm"],["Energy","Earth","Life"],["Energy","Air","Lightning"],["Mud","Fire","Brick"],["Mud","Water","Swamp"],["Mud","Earth","Clay"],["Rain","Earth","Plant"],["Rain","Air","Wind"],["Rain","Fire","Rainbow"],["Dust","Fire","Glass"],["Dust","Air","Sandstorm"],["Dust","Water","Mineral"],["Cloud","Air","Sky"],["Cloud","Water","Fog"],["Cloud","Fire","Rainbow"],["Geyser","Earth","Mountain"],["Geyser","Fire","Steam"],["Obsidian","Fire","Metal"],["Obsidian","Earth","Sand"],["Ash","Water","Soap"],["Ash","Air","Smoke"],["Ash","Earth","Coal"],["Volcano","Water","Island"],["Volcano","Air","Smoke"],["Storm","Earth","Flood"],["Storm","Water","Wave"],["Life","Water","Fish"],["Life","Air","Bird"],["Life","Earth","Grass"],["Lightning","Air","Sound"],["Lightning","Water","Electricity"],["Brick","Brick","Wall"],["Brick","Earth","House"],["Swamp","Fire","Charcoal"],["Swamp","Water","Frog"],["Clay","Fire","Pottery"],["Clay","Water","Ceramic"],["Plant","Water","Tree"],["Plant","Fire","Ash"],["Plant","Earth","Grass"],["Wind","Water","Wave"],["Wind","Earth","Sandstorm"],["Wind","Fire","Sound"],["Rainbow","Water","Waterfall"],["Glass","Fire","Mirror"],["Sandstorm","Fire","Glass"],["Sandstorm","Water","Sand"],["Mineral","Fire","Metal"],["Mineral","Water","Crystal"],["Sky","Air","Star"],["Sky","Fire","Sun"],["Sky","Water","Moon"],["Fog","Earth","Swamp"],["Mountain","Water","River"],["Mountain","Air","Cave"],["Metal","Fire","Sword"],["Metal","Water","Rust"],["Metal","Earth","Bronze"],["Sand","Water","Beach"],["Sand","Fire","Glass"],["Soap","Water","Steam"],["Coal","Fire","Diamond"],["Coal","Earth","Steel"],["Island","Water","Ocean"],["Island","Air","Beach"],["Flood","Earth","Valley"],["Wave","Earth","Reef"],["Fish","Water","Ocean"],["Bird","Air","Egg"],["Grass","Water","Moss"],["Grass","Fire","Flower"],["Grass","Earth","Seed"],["Electricity","Metal","Clock"],["Wall","Wall","Tower"],["Wall","Earth","House"],["House","Fire","Lamp"],["House","Water","Bridge"],["Charcoal","Water","Ink"],["Pottery","Fire","Ceramic"],["Tree","Fire","Charcoal"],["Tree","Water","Waterfall"],["Tree","Earth","Forest"],["Waterfall","Earth","Canyon"],["Mirror","Fire","Lamp"],["Crystal","Fire","Diamond"],["Crystal","Water","Salt"],["River","Earth","Valley"],["River","Water","Ocean"],["Cave","Fire","Coal"],["Cave","Earth","Mountain"],["Sword","Fire","Knife"],["Sword","Water","Rust"],["Rust","Earth","Coin"],["Ocean","Earth","Reef"],["Ocean","Fire","Island"],["Reef","Water","Coral"],["Valley","Water","Jungle"],["Diamond","Metal","Sword"],["Diamond","Fire","Star"],["Steel","Fire","Sword"],["Steel","Earth","Wheel"],["Ocean","Air","Wave"],["Egg","Fire","Bird"],["Flower","Air","Bee"],["Flower","Water","Mushroom"],["Moss","Water","Mushroom"],["Seed","Water","Flower"],["Seed","Fire","Grass"],["Forest","Fire","Wolf"],["Forest","Water","Jungle"],["Forest","Earth","Mushroom"],["Jungle","Water","Snake"],["Jungle","Fire","Butterfly"],["Clock","Metal","Compass"],["Clock","Air","Time"],["Bridge","Metal","Chariot"],["Bridge","Water","Boat"],["Lamp","Fire","Candle"],["Ink","Earth","Paper"],["Ink","Water","Book"],["Coin","Metal","Gold"],["Wheel","Metal","Chariot"],["Wheel","Earth","Boat"],["Sound","Air","Bell"],["Sound","Metal","Bell"],["Star","Air","Moon"],["Star","Fire","Sun"],["Human","Life","Ghost"],["Life","Metal","Human"],["Book","Fire","Ghost"],["Book","Human","Map"],["Map","Boat","Compass"],["Compass","Water","Boat"],["Gold","Fire","Statue"],["Gold","Earth","Coin"],["Bronze","Fire","Statue"],["Bronze","Earth","Bell"],["Statue","Human","Ghost"],["Tower","Fire","Lamp"],["Tower","Air","Bell"],["Chariot","Human","Wolf"],["Boat","Fire","Anchor"],["Boat","Metal","Anchor"],["Knife","Human","Axe"],["Axe","Tree","House"],["Candle","Human","Book"],["Time","Human","Ghost"],["Music","Human","Sound"],["Bell","Human","Music"],["Snake","Human","Wolf"],["Wolf","Human","Bee"]];
+  const RIDDLES = {"Fire":"I dance in orange and gold, but grab me and you'll let go.","Water":"I have no shape of my own, yet I carve canyons of stone.","Earth":"I hold up every tree and town, yet no one thanks the ground.","Air":"You cannot see me, yet without me you'd last only minutes.","Steam":"I rise when water gets too hot to sit still.","Lava":"I flow like a river, but I'm made of melted rock.","Energy":"I make things move, glow, and grow, but you can't hold me.","Mud":"Mix dirt with rain and you'll find me underfoot.","Rain":"I fall from clouds and fill up rivers.","Dust":"I settle on shelves when no one's cleaning.","Cloud":"I float in the sky and sometimes cry.","Geyser":"I'm a fountain built by heat trapped underground.","Obsidian":"Cool lava fast and I'm the glassy black result.","Ash":"After the fire dies, I'm the gray remains.","Volcano":"I'm a mountain that occasionally loses my temper.","Storm":"I bring wind, rain, and sometimes thunder all at once.","Life":"Plants, animals, and people all share this spark.","Lightning":"I flash across the sky faster than sound.","Brick":"Bake clay in a kiln and stack me into walls.","Swamp":"I'm a wetland thick with mud and mystery.","Clay":"Wet and moldable, I become pottery when fired.","Plant":"I grow roots, leaves, and reach for the sun.","Wind":"You can't see me, but you can feel me push.","Sandstorm":"I'm a desert wind carrying grit for miles.","Mineral":"Dig deep enough and you'll find me in the rock.","Sky":"I stretch above you, blue by day and dark by night.","Fog":"I hug the ground and hide the road ahead.","Rainbow":"After a storm, I arc across the sky in color.","Mountain":"I'm the tallest thing for miles, capped in snow.","Metal":"Melted from ore, I can become a sword or a spoon.","Sand":"Grains of me make up every beach.","Soap":"Rub me with water and watch bubbles form.","Smoke":"I curl upward whenever something burns.","Coal":"Buried for ages, I burn black and hot.","Island":"I'm land completely surrounded by water.","Flood":"Too much rain and I swallow the streets.","Wave":"I roll toward the shore and crash before I stop.","Fish":"I breathe through gills and swim all day.","Bird":"I have feathers and usually take to the sky.","Grass":"I carpet the ground in green and need mowing.","Sound":"I travel in waves and you catch me with your ears.","Electricity":"I flow through wires and power your lights.","Wall":"Stack enough bricks and I'll keep you separated.","House":"Walls and a roof make me a place to live.","Charcoal":"Burn wood without enough air and you'll get me.","Frog":"I hop between land and water, croaking as I go.","Pottery":"Shaped from clay and hardened by fire, I hold your soup.","Ceramic":"Fired clay, glazed smooth, found in kitchens everywhere.","Tree":"I start as a seed and end up taller than a house.","Waterfall":"I'm a river that suddenly forgets to be flat.","Canyon":"Rivers carved me over millions of years.","Mirror":"Look at me and you'll see yourself looking back.","Crystal":"I form in neat geometric shapes, sometimes clear as glass.","River":"I flow from mountain to sea, never quite still.","Cave":"Dark, damp, and hidden inside a mountain.","Sword":"Sharp, long, and once carried into battle.","Rust":"Leave metal out in the rain and I'll show up.","Bronze":"An old alloy, once used for statues and coins.","Beach":"Sand meets sea right where I sit.","Diamond":"Squeeze carbon hard enough for long enough and you get me.","Star":"I twinkle at night, though I'm really a distant sun.","Sun":"I rise every morning and set every night.","Moon":"I glow at night, but only by borrowed light.","Reef":"Colorful and underwater, I'm built by tiny creatures.","Ocean":"I cover most of the planet in salt water.","Jungle":"Thick, green, and humid, I'm home to countless creatures.","Valley":"I sit low between two hills or mountains.","Seed":"Plant me and, given time, I'll become something bigger.","Steel":"Mix iron with carbon and you get something stronger.","Egg":"Round, fragile, and often found in a nest.","Flower":"I bloom in color and attract the bees.","Mushroom":"I grow in damp places and I'm not a plant.","Moss":"Soft and green, I grow on rocks and old logs.","Forest":"Trees packed close together, home to wildlife.","Snake":"I have no legs but I still get around just fine.","Butterfly":"I start as a caterpillar and end up with wings.","Clock":"Tick tock, I tell you what time it is.","Compass":"My needle always points north.","Chariot":"Ancient charioteers rode me into battle, pulled by horses.","Boat":"I float on water and carry you across it.","Candle":"Light my wick and I'll melt slowly away.","Ink":"Dip a pen in me and start writing.","Paper":"Thin, flat, and perfect for writing or folding.","Book":"Pages bound together, full of stories or facts.","Coin":"Small, round, and made of metal, I jingle in your pocket.","Wheel":"Round and rolling, I've been essential since ancient times.","Bell":"Ring me and I'll make a clear, ringing sound.","Statue":"Carved or cast, I stand still forever.","Tower":"Tall and narrow, I rise above everything nearby.","Anchor":"Drop me overboard and the boat won't drift.","Knife":"Sharp on one edge, useful in the kitchen.","Axe":"Swing me hard enough and I'll split a log.","Map":"Unfold me to find your way somewhere new.","Sulfur":"A yellow mineral that smells like rotten eggs near volcanoes.","Gunpowder":"Mix me right and I'll go off with a bang.","Explosive":"Handle me carelessly and there will be a very loud noise.","Oxygen":"You breathe me in, but you can't see me.","Hydrogen":"The lightest and simplest element in the universe.","Nitrogen":"I make up most of the air you breathe, yet you never notice me.","Carbon":"Diamonds and pencil lead are both made of me.","Helium":"Fill a balloon with me and it floats right up.","Ammonia":"A sharp-smelling gas often used in cleaning products.","Methane":"A gas that bubbles up from swamps and landfills.","Carbon Dioxide":"You exhale me with every breath.","Acid":"Sour and reactive, I can dissolve things you'd rather I didn't.","Alcohol":"Ferment fruit or grain long enough and you'll produce me.","Vinegar":"Sour and sharp, I'm great on salads and in cleaning.","Petroleum":"Pumped from underground, I'm refined into fuel.","Gasoline":"Pour me into a tank and a car will run.","Plastic":"Molded into countless shapes, I take centuries to break down.","Rubber":"Stretchy and bouncy, I'm found in tires.","Alloy":"Mix two metals together and you'll get something like me.","Pressure":"Squeeze hard enough and you'll feel me build.","Smog":"A city's dirty air on a still day.","Poison":"Handle me with care - I can do real harm.","Fossil":"Bones turned to stone over millions of years.","Dinosaur":"Long extinct, I once ruled the earth on giant legs.","Continent":"A vast stretch of land surrounded by ocean.","Space":"Dark, vast, and mostly empty, I stretch beyond the sky.","Rocket":"Light my engines and I'll leave the atmosphere behind.","Astronaut":"I train for years just to float in zero gravity.","Satellite":"I orbit the planet, relaying signals below.","Planet":"Round, orbiting a star, and sometimes home to life.","Comet":"I streak across the sky with a glowing tail.","Galaxy":"A swirl of billions of stars, held together by gravity.","Meteor":"I burn up in a flash the moment I hit the atmosphere.","Asteroid":"A chunk of rock drifting through space, sometimes too close for comfort.","Black Hole":"Nothing escapes me, not even light.","Desert":"Dry, sandy, and stretching for miles with barely a drop of rain.","Blizzard":"A snowstorm with wind so strong you can't see ahead.","Hail":"Ice falls from the sky and dents your car.","Cement":"Mix me with water and I harden into something solid.","Cow":"I graze in fields and give milk every morning.","Sheep":"Woolly and gentle, I graze in flocks.","Pig":"Pink, round, and happiest rolling in mud.","Chicken":"I lay eggs and cluck around the farmyard.","Dog":"Loyal and eager, I've been man's best friend for ages.","Farm":"Fields, barns, and animals all working together.","Wheat":"Golden stalks that get ground into flour.","Bread":"Bake flour and water together and you'll get me.","Milk":"White and creamy, I come from a cow every morning.","Cheese":"Age milk long enough and you'll end up with me.","Apple":"Red or green, I grow on trees and keep doctors away.","Wine":"Ferment grapes long enough and you'll get this drink.","Soup":"Warm, liquid, and served in a bowl on a cold day.","Sugar":"Sweet and white, I dissolve right into your tea.","Cake":"Bake me for a birthday and top me with icing.","Honey":"Sweet and golden, bees make me from flower nectar.","Beer":"Brewed from grain, this drink comes with foam on top.","Tea":"Steep dried leaves in hot water and sip me slowly.","Owl":"I hunt at night and can turn my head almost all the way around.","Bear":"Big, furry, and fond of fish and honey.","Cat":"I purr, I nap, and I always land on my feet.","Tiger":"Orange with black stripes, I'm the biggest of the big cats.","Dolphin":"Playful and smart, I leap through ocean waves.","Whale":"The largest animal in the ocean, I breathe through a blowhole.","Shark":"Rows of teeth and a fin that cuts the surface.","Ant":"Small, strong, and always marching in a line.","Rope":"Twist fibers together and I'll hold almost anything.","Spider":"Eight legs and a web spun from silk.","Rabbit":"Long ears, a fluffy tail, and a love of carrots.","Deer":"Graceful and quick, I bound through the forest.","Fox":"Clever and quick, with a bushy tail and pointed ears.","Turtle":"Slow and steady, I carry my home on my back.","Camel":"I store fat in my hump and cross deserts with ease.","Elephant":"The largest land animal, with a trunk and huge ears.","Bat":"I sleep upside down and hunt using echoes.","Duck":"I waddle on land but glide smoothly on water.","Goat":"I'll climb almost anything and eat almost everything.","Cloth":"Woven from thread, I become shirts and curtains.","Thread":"Thin and twisted, sew me through fabric.","Basket":"Woven from reeds, I carry your groceries.","Needle":"Thin and sharp, I pull thread through fabric.","Hammer":"Swing me down and the nail goes in.","Nail":"Hammer me into wood and I'll hold things together.","Saw":"Back and forth I go, cutting through wood.","Pencil":"Sharpen my tip and I'll write in gray.","Letter":"Fold me up, seal me, and send me by mail.","Telescope":"Point me at the sky and the stars come closer.","Camera":"Click my shutter and the moment is frozen forever.","Radio":"Turn my dial and music comes out of nowhere.","Computer":"Type on my keys and the screen lights up.","Robot":"Built from metal and wires, I follow instructions exactly.","Battery":"Small and powerful, I store energy until you need it.","Engine":"Burn fuel inside me and something starts to move.","Train":"I run on rails and pull cars behind me.","Car":"Four wheels, an engine, and a place to sit.","Airplane":"Wings and engines let me soar above the clouds.","Balloon":"Fill me with air or gas and I'll float or pop.","Umbrella":"Open me up and the rain won't touch you.","Kite":"Tie a string to me and let the wind carry me up.","Sail":"Catch the wind in me and the boat moves forward.","Net":"Woven with holes, I'm great for catching fish.","Ladder":"Climb my rungs to reach somewhere higher.","Scissors":"Two blades that cross to cut paper or hair.","Castle":"Stone walls and towers built to keep invaders out.","Village":"A small cluster of homes where everyone knows each other.","City":"Skyscrapers, streets, and crowds as far as you can see.","Windmill":"My blades spin in the wind to grind grain or make power.","Well":"Dig deep enough into the ground and you'll find water in me.","Fence":"I mark the edge of a yard and keep animals in.","Barn":"Red and wooden, I shelter animals and hay.","Church":"A steeple, pews, and quiet on Sunday morning.","School":"Desks, chalkboards, and the sound of a bell between classes.","Library":"Rows of shelves, all filled with books to borrow.","Palace":"Grand and gilded, built for royalty to live in.","Lighthouse":"Tall by the sea, I flash light to guide ships home.","Pyramid":"Ancient and triangular, built from stone blocks in the desert.","Temple":"A sacred building where people come to worship.","Dream":"Vivid and strange, I only visit while you sleep.","Shadow":"I follow you everywhere the sun shines.","King":"I wear a crown and rule over a kingdom.","Queen":"I wear a crown too, and often rule beside a king.","Knight":"Armored and sworn to duty, I once rode into battle for my king.","Soldier":"Trained and disciplined, I serve in an army.","Army":"A large group of soldiers ready for battle.","War":"Conflict between nations, fought with soldiers and weapons.","Peace":"The calm that follows when the fighting finally stops.","Love":"A deep feeling of care that connects two people.","Money":"Coins and bills that let you buy what you need.","Market":"Stalls and shoppers gathered to buy and sell goods.","Human":"Two legs, a big brain, and the only one reading this.","Glass":"Melt sand hot enough and I turn clear and breakable.","Lamp":"Flip my switch and light fills the room.","Bridge":"I stretch across a river so you don't need a boat.","Salt":"White, crunchy, and pulled from seawater or mines.","Coral":"Colorful and hard, I build reefs one tiny creature at a time.","Bee":"I buzz between flowers and make honey back home.","Wolf":"I howl at night and hunt in a pack.","Time":"You can't stop me, save me, or get me back.","Gold":"Shiny, heavy, and worth a fortune by the ounce.","Music":"Notes and rhythm combined into something you can hum.","Lion":"King of the savanna, with a mane and a roar.","Horse":"Strong and fast, I've carried riders for thousands of years.","Supernova":"A dying star explodes in the brightest blast the sky can offer.","Neutron Star":"Crush a dead star tight enough and I'm denser than anything on Earth.","White Dwarf":"A star burned out, cooling slowly into a small, dim ember.","Red Giant":"A star swells huge and red as it runs low on fuel.","Nebula":"A glowing cloud of gas and dust, often the leftovers of a dead star.","Pulsar":"A spinning dead star that blinks like a cosmic lighthouse.","Quasar":"I outshine entire galaxies, powered by a black hole feasting on matter.","Wormhole":"A theoretical shortcut that might connect two far corners of space.","Dark Matter":"Invisible and unmeasured, I still hold galaxies together with my pull.","Universe":"Everything that exists, everywhere, all at once."};
+
+  const RECIPE_LIST = [["Fire","Water","Steam"],["Fire","Earth","Lava"],["Fire","Air","Energy"],["Water","Earth","Mud"],["Water","Air","Rain"],["Earth","Air","Dust"],["Steam","Air","Cloud"],["Steam","Earth","Geyser"],["Lava","Water","Obsidian"],["Lava","Air","Ash"],["Lava","Earth","Volcano"],["Energy","Water","Storm"],["Energy","Earth","Life"],["Energy","Air","Lightning"],["Mud","Fire","Brick"],["Mud","Water","Swamp"],["Mud","Earth","Clay"],["Rain","Earth","Plant"],["Rain","Air","Wind"],["Rain","Fire","Rainbow"],["Dust","Fire","Glass"],["Dust","Air","Sandstorm"],["Dust","Water","Mineral"],["Cloud","Air","Sky"],["Cloud","Water","Fog"],["Cloud","Fire","Rainbow"],["Geyser","Earth","Mountain"],["Geyser","Fire","Steam"],["Obsidian","Fire","Metal"],["Obsidian","Earth","Sand"],["Ash","Water","Soap"],["Ash","Air","Smoke"],["Ash","Earth","Coal"],["Volcano","Water","Island"],["Volcano","Air","Smoke"],["Storm","Earth","Flood"],["Storm","Water","Wave"],["Life","Water","Fish"],["Life","Air","Bird"],["Life","Earth","Grass"],["Lightning","Air","Sound"],["Lightning","Water","Electricity"],["Brick","Brick","Wall"],["Brick","Earth","House"],["Swamp","Fire","Charcoal"],["Swamp","Water","Frog"],["Clay","Fire","Pottery"],["Clay","Water","Ceramic"],["Plant","Water","Tree"],["Plant","Fire","Ash"],["Plant","Earth","Grass"],["Wind","Water","Wave"],["Wind","Earth","Sandstorm"],["Wind","Fire","Sound"],["Rainbow","Water","Waterfall"],["Glass","Fire","Mirror"],["Sandstorm","Fire","Glass"],["Sandstorm","Water","Sand"],["Mineral","Fire","Metal"],["Mineral","Water","Crystal"],["Sky","Air","Star"],["Sky","Fire","Sun"],["Sky","Water","Moon"],["Fog","Earth","Swamp"],["Mountain","Water","River"],["Mountain","Air","Cave"],["Metal","Fire","Sword"],["Metal","Water","Rust"],["Metal","Earth","Bronze"],["Sand","Water","Beach"],["Sand","Fire","Glass"],["Soap","Water","Steam"],["Coal","Fire","Diamond"],["Coal","Earth","Steel"],["Island","Water","Ocean"],["Island","Air","Beach"],["Flood","Earth","Valley"],["Wave","Earth","Reef"],["Fish","Water","Ocean"],["Bird","Air","Egg"],["Grass","Water","Moss"],["Grass","Fire","Flower"],["Grass","Earth","Seed"],["Electricity","Metal","Clock"],["Wall","Wall","Tower"],["Wall","Earth","House"],["House","Fire","Lamp"],["House","Water","Bridge"],["Charcoal","Water","Ink"],["Pottery","Fire","Ceramic"],["Tree","Fire","Charcoal"],["Tree","Water","Waterfall"],["Tree","Earth","Forest"],["Waterfall","Earth","Canyon"],["Mirror","Fire","Lamp"],["Crystal","Fire","Diamond"],["Crystal","Water","Salt"],["River","Earth","Valley"],["River","Water","Ocean"],["Cave","Fire","Coal"],["Cave","Earth","Mountain"],["Sword","Fire","Knife"],["Sword","Water","Rust"],["Rust","Earth","Coin"],["Ocean","Earth","Reef"],["Ocean","Fire","Island"],["Reef","Water","Coral"],["Valley","Water","Jungle"],["Diamond","Metal","Sword"],["Diamond","Fire","Star"],["Steel","Fire","Sword"],["Steel","Earth","Wheel"],["Ocean","Air","Wave"],["Egg","Fire","Bird"],["Flower","Air","Bee"],["Flower","Water","Mushroom"],["Moss","Water","Mushroom"],["Seed","Water","Flower"],["Seed","Fire","Grass"],["Forest","Fire","Wolf"],["Forest","Water","Jungle"],["Forest","Earth","Mushroom"],["Jungle","Water","Snake"],["Jungle","Fire","Butterfly"],["Clock","Metal","Compass"],["Clock","Air","Time"],["Bridge","Metal","Chariot"],["Bridge","Water","Boat"],["Lamp","Fire","Candle"],["Ink","Earth","Paper"],["Ink","Water","Book"],["Coin","Metal","Gold"],["Wheel","Metal","Chariot"],["Wheel","Earth","Boat"],["Sound","Air","Bell"],["Sound","Metal","Bell"],["Star","Air","Moon"],["Star","Fire","Sun"],["Life","Metal","Human"],["Book","Human","Map"],["Map","Boat","Compass"],["Compass","Water","Boat"],["Gold","Fire","Statue"],["Gold","Earth","Coin"],["Bronze","Fire","Statue"],["Bronze","Earth","Bell"],["Tower","Fire","Lamp"],["Tower","Air","Bell"],["Chariot","Human","Wolf"],["Boat","Fire","Anchor"],["Boat","Metal","Anchor"],["Knife","Human","Axe"],["Axe","Tree","House"],["Candle","Human","Book"],["Music","Human","Sound"],["Bell","Human","Music"],["Snake","Human","Wolf"],["Wolf","Human","Bee"],["Sand","Air","Desert"],["Storm","Air","Blizzard"],["Blizzard","Water","Hail"],["Mineral","Sand","Cement"],["Grass","Life","Cow"],["Cow","Grass","Sheep"],["Mud","Cow","Pig"],["Egg","Farm","Chicken"],["House","Wolf","Dog"],["Human","Grass","Farm"],["Grass","Sand","Wheat"],["Wheat","Fire","Bread"],["Cow","Water","Milk"],["Milk","Fire","Cheese"],["Flower","Fire","Apple"],["Apple","Time","Wine"],["Bread","Water","Soup"],["Wheat","Water","Sugar"],["Bread","Sugar","Cake"],["Bee","Flower","Honey"],["Time","Wheat","Beer"],["Moss","Fire","Tea"],["Bird","Forest","Owl"],["Forest","Fish","Bear"],["Human","Fish","Cat"],["Cat","Jungle","Tiger"],["Ocean","Bird","Dolphin"],["Ocean","Dolphin","Whale"],["Ocean","Sword","Shark"],["Sand","Life","Ant"],["Plant","Plant","Rope"],["Rope","Forest","Spider"],["Grass","Egg","Rabbit"],["Forest","Grass","Deer"],["Forest","Wolf","Fox"],["Reef","Egg","Turtle"],["Desert","Cat","Lion"],["Desert","Human","Camel"],["Jungle","Human","Elephant"],["Cave","Bird","Bat"],["Swamp","Bird","Duck"],["Mountain","Life","Goat"],["Sheep","Fire","Cloth"],["Cloth","Cloth","Thread"],["Thread","Plant","Basket"],["Metal","Thread","Needle"],["Metal","Tree","Hammer"],["Hammer","Metal","Nail"],["Metal","Metal","Saw"],["Tree","Charcoal","Pencil"],["Paper","Ink","Letter"],["Glass","Metal","Telescope"],["Mirror","Metal","Camera"],["Electricity","Sound","Radio"],["Electricity","Glass","Computer"],["Computer","Metal","Robot"],["Electricity","Coal","Battery"],["Metal","Energy","Engine"],["Engine","Metal","Train"],["Engine","Wheel","Car"],["Engine","Sky","Airplane"],["Cloth","Air","Balloon"],["Cloth","Metal","Umbrella"],["Cloth","Wind","Kite"],["Cloth","Boat","Sail"],["Rope","Rope","Net"],["Tree","Rope","Ladder"],["Knife","Metal","Scissors"],["Wall","Tower","Castle"],["House","House","Village"],["Village","House","City"],["Farm","Wind","Windmill"],["Farm","Water","Well"],["Wall","Farm","Fence"],["Farm","House","Barn"],["Village","Human","Church"],["Village","Book","School"],["Book","Book","Library"],["Castle","Gold","Palace"],["Tower","Ocean","Lighthouse"],["Desert","Gold","Pyramid"],["Pyramid","Human","Temple"],["Human","Sky","Dream"],["Human","Fire","Shadow"],["Grass","Wolf","Horse"],["Human","Gold","King"],["Human","Diamond","Queen"],["Human","Sword","Knight"],["Human","Metal","Soldier"],["Soldier","Soldier","Army"],["Army","Army","War"],["War","Water","Peace"],["Human","Human","Love"],["Coin","Coin","Money"],["Money","Village","Market"],["Volcano","Fire","Sulfur"],["Coal","Sulfur","Gunpowder"],["Gunpowder","Fire","Explosive"],["Plant","Air","Oxygen"],["Sun","Water","Hydrogen"],["Air","Blizzard","Nitrogen"],["Charcoal","Fire","Carbon"],["Sun","Air","Helium"],["Nitrogen","Hydrogen","Ammonia"],["Swamp","Air","Methane"],["Carbon","Oxygen","Carbon Dioxide"],["Carbon Dioxide","Water","Acid"],["Wine","Fire","Alcohol"],["Alcohol","Air","Vinegar"],["Coal","Water","Petroleum"],["Petroleum","Fire","Gasoline"],["Petroleum","Energy","Plastic"],["Plant","Petroleum","Rubber"],["Metal","Coal","Alloy"],["Storm","Storm","Pressure"],["City","Smoke","Smog"],["Snake","Mushroom","Poison"],["Cave","Time","Fossil"],["Fossil","Egg","Dinosaur"],["Island","Island","Continent"],["Sky","Sky","Space"],["Metal","Space","Rocket"],["Human","Rocket","Astronaut"],["Rocket","Metal","Satellite"],["Space","Earth","Planet"],["Space","Water","Comet"],["Space","Star","Galaxy"],["Space","Fire","Meteor"],["Space","Mineral","Asteroid"],["Galaxy","Time","Black Hole"],["Star","Star","Supernova"],["Supernova","Metal","Neutron Star"],["Star","Time","White Dwarf"],["Sun","Time","Red Giant"],["Supernova","Dust","Nebula"],["Neutron Star","Sound","Pulsar"],["Black Hole","Galaxy","Quasar"],["Black Hole","Black Hole","Wormhole"],["Galaxy","Space","Dark Matter"],["Galaxy","Galaxy","Universe"]];
 
   const RECIPES = {};
   RECIPE_LIST.forEach(([a,b,r]) => { RECIPES[[a,b].sort().join("+")] = r; });
@@ -333,13 +373,10 @@
   }
   const DEPTHS = computeDepths();
 
-  const TARGETS = ["Metal","Glass","Tree","Forest","Mirror","Wall","Storm","Swamp","Sword","Ocean",
-    "Bridge","Diamond","Human","Ghost","Statue","Book","Boat","Wolf","Butterfly","Compass",
-    "Music","Bell","Coin","Candle","Knife","Star","Moon","Sun","Volcano","Island",
-    "River","Jungle","Chariot","Map","Axe","Gold","Wheel","Time"];
+  const TARGETS = ["Brick","Rainbow","Glass","Obsidian","Storm","Swamp","Mineral","Geyser","Volcano","Life","Clay","Plant","Cloud","Ash","Lightning","Wind","Sandstorm","Mirror","Metal","Charcoal","Sulfur","Pottery","Sound","Waterfall","Wave","Frog","Crystal","Island","Fish","Ceramic","Tree","Fog","Soap","Electricity","Sand","House","Flood","Mountain","Grass","Coal","Blizzard","Methane","Smoke","Bird","Oxygen","Sky","Wall","Pressure","Rope","Lamp","Sword","Carbon","Diamond","Flower","Sun","Rust","Ink","Salt","Ocean","Beach","Bridge","River","Moss","Petroleum","Hail","Moon","Bronze","Canyon","Reef","Forest","Valley","Seed","Steel","Bell","Desert","Cave","Nitrogen","Egg","Star","Engine","Telescope","Computer","Duck","Cement","Human","Ant","Goat","Cow","Camera","Saw","Hammer","Clock","Alloy","Pencil","Gunpowder","Radio","Continent","Ladder","Battery","Wheat","Village","Space","Tower","Net","Candle","Knife","Apple","Tea","Gasoline","Statue","Wolf","Shadow","Explosive","Bread","Meteor","Mushroom","Hydrogen","Book","Boat","Coral","Jungle","Milk","Sugar","Comet","Coin","Paper","Wheel","Planet","Bee","Helium","Time","Plastic","Pig","Asteroid","Rubber","Chariot","Train","Robot","Soldier","Nail","Compass","Rocket","Bear","Cat","City","Deer","Rabbit","Farm","Sheep","Dolphin","Owl","Bat","Carbon Dioxide","Airplane","Dream","Castle","Spider","Shark","Knight","Queen","Lighthouse","Turtle","Music","Camel","Supernova","Galaxy","Love","Church","Anchor","Butterfly","Cheese","Cloth","Soup","Snake","Well","Acid","Nebula","Windmill","Scissors","Gold","Satellite","Neutron Star","Dog","Barn","Horse","Smog","Fence","Honey","Red Giant","Letter","Whale","Fox","Lion","Fossil","Ammonia","Chicken","White Dwarf","Car","Axe","Map","Elephant","Astronaut","Beer","School","Dark Matter","Wine","Cake","Library","Tiger","Money","Black Hole","Army","Universe","Alcohol","Balloon","Kite","Umbrella","Pulsar","Pyramid","Dinosaur","King","Market","Poison","Sail","Palace","Quasar","Thread","Wormhole","War","Peace","Vinegar","Basket","Needle","Temple"];
 
   const MAX_TRIES = 10;
-  const HINT_STAGES = [3, 6, 8];
+  const HINT_STAGES = [0, 4, 7]; // misses required to unlock each hint; 0 = shown immediately
 
   function todayStr(){
     const d = new Date();
@@ -362,10 +399,11 @@
   const ingredientHint = findIngredientHint(target);
 
   const HINTS = [
-    `This item belongs to the category: ${CATEGORY[target]}.`,
+    RIDDLES[target] || "This one's a mystery even to me.",
     `Its name has ${target.length} letters and starts with "${target[0]}".`,
     `One of its ingredients is ${ICONS[ingredientHint] || ""} ${ingredientHint}.`
   ];
+  const HINT_LABELS = ["Riddle", "Hint 2", "Hint 3"];
 
   let state = {
     date: today, target, discovered: new Set(BASE),
@@ -375,6 +413,11 @@
   let activeFilter = "All";
   let showCodex = false;
   let codexSearch = "";
+  let codexCategoryFilter = "All";
+  let showLock = false;
+  let lockError = "";
+  let codexRevealAll = false;
+  const SECRET_CODE = "4123";
 
   const app = document.getElementById("app");
 
@@ -441,26 +484,28 @@
   let lastMessageIsError = false;
 
   function tryCombine(a,b){
-    if(state.won || state.lost) return;
+    const gameOver = state.won || state.lost;
     const key = [a,b].sort().join("+");
     const result = RECIPES[key];
     state.log.unshift({a,b,result: result || null});
     if(result){
       const isNew = !state.discovered.has(result);
       state.discovered.add(result);
-      if(result === state.target) state.won = true;
+      if(!gameOver && result === state.target) state.won = true;
       slotA = null; slotB = null;
       lastMessage = isNew ? `${result} discovered!` : `${result} — already known.`;
       lastMessageIsError = false;
     } else {
-      state.triesUsed += 1;
       slotA = null; slotB = null;
-      if(state.triesUsed >= MAX_TRIES) state.lost = true;
+      if(!gameOver){
+        state.triesUsed += 1;
+        if(state.triesUsed >= MAX_TRIES) state.lost = true;
+      }
       lastMessage = "Nothing happens...";
       lastMessageIsError = true;
     }
     saveProgress();
-    if(state.won || state.lost){
+    if(!gameOver && (state.won || state.lost)){
       updateStreak(state.won).then(()=>render());
     } else {
       render();
@@ -468,7 +513,6 @@
   }
 
   function selectItem(name){
-    if(state.won || state.lost) return;
     if(!slotA){ slotA = name; }
     else if(!slotB){ slotB = name; }
     else { slotA = name; slotB = null; }
@@ -483,12 +527,33 @@
 
   const ALL_CATEGORIES = ["All","Element","Weather","Nature","Material","Living","Object","Cosmic"];
 
+  function renderLock(){
+    return `
+      <div class="lock-overlay" id="lockOverlay">
+        <div class="lock-panel">
+          <h3>🔒 A hidden mechanism</h3>
+          <div class="lock-sub">Enter the combination to reveal every element.</div>
+          <div class="lock-digits">
+            ${[0,1,2,3].map(i => `<input class="lock-digit" id="lockDigit${i}" maxlength="1" inputmode="numeric" pattern="[0-9]">`).join("")}
+          </div>
+          <div class="lock-error">${lockError}</div>
+          <div class="lock-buttons">
+            <button class="lock-cancel" id="lockCancelBtn">Cancel</button>
+            <button class="combine-btn" id="lockSubmitBtn">Unlock</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function renderCodex(){
     const q = codexSearch.trim().toLowerCase();
     const allItems = Object.keys(DEPTHS); // every reachable item, base included
+    const availableCategories = ["All", ...Array.from(new Set(allItems.map(i => CATEGORY[i]).filter(Boolean))).sort()];
     const byTier = {};
     allItems.forEach(item => {
       if(q && !item.toLowerCase().includes(q)) return;
+      if(codexCategoryFilter !== "All" && CATEGORY[item] !== codexCategoryFilter) return;
       const tier = DEPTHS[item];
       if(!byTier[tier]) byTier[tier] = [];
       byTier[tier].push(item);
@@ -498,24 +563,30 @@
 
     const foundCount = allItems.filter(i => state.discovered.has(i)).length;
 
+    const categoryChips = availableCategories.map(c =>
+      `<button class="filter-chip ${codexCategoryFilter===c?'active':''}" data-codexcat="${c}">${c}</button>`
+    ).join("");
+
     return `
       <div class="codex-overlay" id="codexOverlay">
-        <div class="codex-panel">
+        <div class="codex-panel" style="position:relative;">
           <div class="codex-head">
             <h2>The Codex</h2>
             <button class="codex-close" id="codexCloseBtn">✕</button>
           </div>
-          <div class="codex-warning">Everything you can ever end up with — not how to make it. Undiscovered items show as silhouettes.</div>
+          <button class="codex-secret-btn" id="codexSecretBtn" aria-hidden="true" tabindex="-1"></button>
+          <div class="codex-warning">Everything you can ever end up with — not how to make it. Undiscovered items show as silhouettes.${codexRevealAll ? " (All revealed.)" : ""}</div>
           <div class="codex-progress">You've found ${foundCount} of ${allItems.length} known items.</div>
           <div class="codex-controls">
             <input class="codex-search" id="codexSearchInput" placeholder="Search an item…" value="${codexSearch}">
           </div>
-          ${tierKeys.length === 0 ? `<div class="codex-empty">No items match "${codexSearch}".</div>` : tierKeys.map(tier => `
+          <div class="filter-row">${categoryChips}</div>
+          ${tierKeys.length === 0 ? `<div class="codex-empty">No items match${q ? ` "${codexSearch}"` : ""}${codexCategoryFilter !== "All" ? ` in ${codexCategoryFilter}` : ""}.</div>` : tierKeys.map(tier => `
             <div class="codex-tier">
               <div class="codex-tier-title">Tier ${tier}</div>
               <div class="codex-grid">
                 ${byTier[tier].map(item => {
-                  const found = state.discovered.has(item);
+                  const found = state.discovered.has(item) || codexRevealAll;
                   return `
                     <div class="codex-item ${found ? 'found' : 'locked'}">
                       <span class="icon">${found ? (ICONS[item]||"❔") : "❔"}</span>
@@ -528,6 +599,7 @@
             </div>
           `).join("")}
         </div>
+        ${showLock ? renderLock() : ""}
       </div>
     `;
   }
@@ -544,9 +616,9 @@
 
     const hintsHtml = `<div class="hints">` + HINT_STAGES.map((threshold, i) => {
       if(state.triesUsed >= threshold || state.won || state.lost){
-        return `<div class="hint-row">Hint ${i+1}: ${HINTS[i]}</div>`;
+        return `<div class="hint-row">${HINT_LABELS[i]}: ${HINTS[i]}</div>`;
       } else {
-        return `<div class="hint-locked">Hint ${i+1} unlocks after ${threshold} misses</div>`;
+        return `<div class="hint-locked">${HINT_LABELS[i]} unlocks after ${threshold} misses</div>`;
       }
     }).join("") + `</div>`;
 
@@ -577,35 +649,21 @@
           <button class="share-btn" id="shareBtn">Copy result</button>
         </div>`;
     } else if(state.lost){
+      const revealRecipe = RECIPE_LIST.find(([a,b,r]) => r === state.target);
+      const revealHtml = revealRecipe
+        ? `<div style="margin-top:10px; font-size:13px; color:var(--text-dim);">You could have made it with ${ICONS[revealRecipe[0]]||""} ${revealRecipe[0]} + ${ICONS[revealRecipe[1]]||""} ${revealRecipe[1]}.</div>`
+        : "";
       panelHtml = `
         <div class="fail-panel">
           <h2>The vessel shatters</h2>
           <div>Today's element was <strong style="color:var(--gold-bright)">${ICONS[state.target]} ${state.target}</strong></div>
+          ${revealHtml}
           <div style="margin-top:14px;"><button class="share-btn" id="shareBtn">Copy result</button></div>
         </div>`;
     }
 
-    app.innerHTML = `
-      <header>
-        <div class="glyph-row">🜁 🜂 🜃 🜄</div>
-        <h1>Alchemo</h1>
-        <div class="subtitle">Transmute the four elements into today's mystery item.</div>
-        <div class="date-line">Invented by Sam Scott</div>
-        <div class="date-line">${today}</div>
-      </header>
-
-      <div class="target-card">
-        <div class="target-label">Today's target</div>
-        <div class="target-name ${(!state.won && !state.lost) ? 'hidden-target' : ''}">${targetDisplay}</div>
-        ${hintsHtml}
-        <div class="tries-row">
-          <div class="flasks">${flasks}</div>
-          <div class="tries-text">${triesLeft} ${triesLeft===1?'try':'tries'} left</div>
-        </div>
-      </div>
-
-      ${(!state.won && !state.lost) ? `
-      <div class="section-title">Combine</div>
+    const combineSectionHtml = `
+      <div class="section-title">${(state.won || state.lost) ? "Keep experimenting" : "Combine"}</div>
       <div class="combine-zone">
         <div class="slot ${slotA?'filled':''}" id="slotA">
           ${slotA ? `<span>${ICONS[slotA]}</span><span class="slot-name">${slotA}</span>` : "+"}
@@ -617,9 +675,34 @@
         <button class="combine-btn" id="combineBtn" ${(slotA && slotB) ? "" : "disabled"}>Combine</button>
       </div>
       <div class="message ${lastMessageIsError ? 'error':''}">${lastMessage}</div>
-      ` : ""}
+    `;
 
-      ${panelHtml}
+    const targetCardHtml = `
+      <div class="target-card">
+        <div class="target-label">Today's target</div>
+        <div class="target-name ${(!state.won && !state.lost) ? 'hidden-target' : ''}">${targetDisplay}</div>
+        ${hintsHtml}
+        <div class="tries-row">
+          <div class="flasks">${flasks}</div>
+          <div class="tries-text">${triesLeft} ${triesLeft===1?'try':'tries'} left</div>
+        </div>
+      </div>
+    `;
+
+    const middleSectionHtml = state.lost
+      ? combineSectionHtml + targetCardHtml + panelHtml
+      : targetCardHtml + panelHtml + combineSectionHtml;
+
+    app.innerHTML = `
+      <header>
+        <div class="glyph-row">🜁 🜂 🜃 🜄</div>
+        <h1>Alchemo</h1>
+        <div class="subtitle">Transmute the four elements into today's mystery item.</div>
+        <div class="date-line">Invented by Sam Scott</div>
+        <div class="date-line">${today}</div>
+      </header>
+
+      ${middleSectionHtml}
 
       <div class="section-title">Your elements (${discoveredList.length})</div>
       <div class="filter-row">${filterChips}</div>
@@ -643,12 +726,10 @@
       </div>
     `;
 
-    if(!state.won && !state.lost){
-      document.getElementById("slotA").onclick = () => { if(slotA){ slotA=null; render(); } };
-      document.getElementById("slotB").onclick = () => { if(slotB){ slotB=null; render(); } };
-      const combineBtn = document.getElementById("combineBtn");
-      if(combineBtn) combineBtn.onclick = () => { if(slotA && slotB) tryCombine(slotA, slotB); };
-    }
+    document.getElementById("slotA").onclick = () => { if(slotA){ slotA=null; render(); } };
+    document.getElementById("slotB").onclick = () => { if(slotB){ slotB=null; render(); } };
+    const combineBtn = document.getElementById("combineBtn");
+    if(combineBtn) combineBtn.onclick = () => { if(slotA && slotB) tryCombine(slotA, slotB); };
     document.querySelectorAll(".item").forEach(el=>{
       el.onclick = () => selectItem(el.getAttribute("data-name"));
     });
@@ -691,6 +772,38 @@
         searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
         searchInput.oninput = (e) => { codexSearch = e.target.value; render(); };
       }
+      const secretBtn = document.getElementById("codexSecretBtn");
+      if(secretBtn) secretBtn.onclick = () => { showLock = true; lockError = ""; render(); };
+      document.querySelectorAll("[data-codexcat]").forEach(el => {
+        el.onclick = () => { codexCategoryFilter = el.getAttribute("data-codexcat"); render(); };
+      });
+    }
+
+    const lockOverlay = document.getElementById("lockOverlay");
+    if(lockOverlay){
+      const digits = [0,1,2,3].map(i => document.getElementById("lockDigit"+i));
+      digits[0].focus();
+      digits.forEach((el, i) => {
+        el.oninput = () => {
+          el.value = el.value.replace(/[^0-9]/g,"").slice(0,1);
+          if(el.value && digits[i+1]) digits[i+1].focus();
+        };
+        el.onkeydown = (e) => {
+          if(e.key === "Backspace" && !el.value && digits[i-1]) digits[i-1].focus();
+        };
+      });
+      document.getElementById("lockCancelBtn").onclick = () => { showLock = false; render(); };
+      document.getElementById("lockSubmitBtn").onclick = () => {
+        const code = digits.map(d => d.value).join("");
+        if(code === SECRET_CODE){
+          codexRevealAll = true;
+          showLock = false;
+          lockError = "";
+        } else {
+          lockError = "Incorrect combination.";
+        }
+        render();
+      };
     }
   }
 
